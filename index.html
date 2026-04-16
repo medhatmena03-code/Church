@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>دخول الخدام - فصل القديس أبانوب</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { 
+            --primary: #1e272e; --accent: #48dbfb; --bg: #f5f6fa; 
+            --green: #1dd1a1; --red: #ff6b6b; --warning: #ff9f43; --purple: #a55eea;
+        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 8px; direction: rtl; user-select: none; }
+
+        #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #1e272e; z-index:10000; display:flex; align-items:center; justify-content:center; }
+        .login-box { background: white; padding: 40px 30px; border-radius: 35px; width: 88%; max-width: 380px; text-align: center; }
+        .login-box h2 { color: #1e272e; margin-bottom: 25px; font-size: 18px; font-weight: 900; }
+        .login-box input { width: 90%; margin: 10px 0; padding: 12px; border-radius: 15px; border: 1px solid #ccc; }
+        .login-box button { background: var(--primary); color: var(--accent); width: 100%; padding: 15px; border-radius: 15px; font-weight: 900; border: none; cursor: pointer; font-size: 18px; }
+
+        .container { max-width: 1000px; margin: auto; background: white; padding: 15px; border-radius: 35px; display:none; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 12px; border-radius: 18px; flex-wrap: wrap; gap: 10px; }
+        .saint-img { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--accent); object-fit: cover; display: block; margin: 10px auto; }
+        
+        .verse-fixed {
+            background: linear-gradient(135deg, #1e272e 0%, #2c3e50 100%);
+            border-radius: 20px;
+            margin: 15px 0;
+            padding: 20px 15px;
+            text-align: center;
+            border: 2px solid #48dbfb;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        .verse-fixed i {
+            font-size: 28px;
+            color: #48dbfb;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .verse-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #48dbfb;
+            line-height: 1.8;
+            margin: 10px 0;
+        }
+        .verse-ref {
+            display: inline-block;
+            background: rgba(72, 219, 251, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #fff;
+            margin-top: 8px;
+        }
+        .verse-fixed::before {
+            content: '"';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            font-size: 50px;
+            color: #48dbfb;
+            opacity: 0.3;
+            font-family: serif;
+        }
+        .verse-fixed::after {
+            content: '"';
+            position: absolute;
+            bottom: -25px;
+            left: 20px;
+            font-size: 50px;
+            color: #48dbfb;
+            opacity: 0.3;
+            font-family: serif;
+        }
+
+        .entry-box { background: #fff; padding: 18px; border-radius: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #f0f0f0; }
+        input, select, textarea { border: 1.5px solid #e1e8ed; padding: 12px; border-radius: 12px; margin: 6px 0; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .label-text { display: block; text-align: right; font-size: 11px; color: #a4b0be; margin: 5px 12px -2px 0; font-weight: bold; }
+
+        .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+        .main-btn { border: none; border-radius: 18px; padding: 14px 10px; color: white; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 14px; }
+        .btn-green { background: var(--green); flex: 2; }
+        .btn-red { background: var(--red); flex: 2; }
+        .btn-clear { background: #7f8c8d; flex: 1; }
+
+        /* الجدول الرئيسي */
+        .main-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
+        .main-table th { background: #2f3542; color: white; padding: 12px 5px; }
+        .main-table td { padding: 10px 5px; border-bottom: 1px solid #f1f2f6; text-align: center; }
+        
+        /* جدول الافتقاد المنفصل */
+        .visit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 15px;
+            background: #fff9e6;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .visit-table th {
+            background: var(--warning);
+            color: #2c3e50;
+            padding: 14px 8px;
+            font-size: 14px;
+        }
+        .visit-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #ffe0b3;
+            text-align: center;
+        }
+        .visit-table tr:hover {
+            background: #fff0d4;
+        }
+        .visit-title {
+            background: var(--warning);
+            color: #2c3e50;
+            padding: 12px;
+            border-radius: 20px 20px 0 0;
+            margin-top: 25px;
+            margin-bottom: 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .visit-title i {
+            margin-left: 8px;
+        }
+        .no-visit {
+            text-align: center;
+            padding: 30px;
+            color: var(--green);
+            font-weight: bold;
+            background: #e8f8f0;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .alert-row { background-color: #fff9e6 !important; border: 2px solid var(--warning) !important; }
+        .visit-tag { color: var(--warning); font-weight: 800; font-size: 10px; display: block; margin-top: 2px; }
+        .bday-tag { color: var(--purple); font-weight: bold; font-size: 11px; }
+
+        .stats-table { width: 100%; margin-top: 25px; background: #2f3542; color: white; border-radius: 25px; overflow: hidden; }
+        .stats-table td { padding: 18px; font-size: 16px; font-weight: 800; text-align: center; }
+        
+        @media (max-width: 700px) { td, th { font-size: 10px; } .main-btn { font-size: 12px; } .verse-text { font-size: 14px; } }
+    </style>
+</head>
+<body onclick="resetIdleTimer()" ontouchstart="resetIdleTimer()">
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <img src="abanoub.jpg" style="width:110px; height:110px; border-radius:50%; border:4px solid var(--accent); margin-bottom:15px;" onerror="this.src='https://via.placeholder.com/110'">
+        <h2>دخول الخدام - فصل القديس أبانوب</h2>
+        <input type="text" id="user" placeholder="👤 اسم المستخدم">
+        <input type="password" id="pass" placeholder="🔑 كلمة السر">
+        <button onclick="handleLogin()">دخول</button>
+    </div>
+</div>
+
+<div class="container" id="mainApp">
+    <div class="header-top">
+        <span>👋 خادم: <span id="displayName" style="font-weight:900"></span></span>
+        <span id="idleTimer" style="color:var(--warning); font-family:monospace;">02:00</span>
+        <button onclick="logout()" style="background:#ff4757; color:white; border:none; padding:6px 12px; border-radius:10px;">خروج</button>
+    </div>
+
+    <img src="abanoub.jpg" class="saint-img" onerror="this.src='https://via.placeholder.com/90'">
+    
+    <div class="verse-fixed">
+        <i class="fas fa-bible"></i>
+        <div class="verse-text">
+            "إِذًا يَا إِخْوَتِي الأَحِبَّاءَ، كُونُوا رَاسِخِينَ، غَيْرَ مُتَزَعْزِعِينَ، مُكْثِرِينَ فِي عَمَلِ الرَّبِّ كُلَّ حِينٍ، عَالِمِينَ أَنَّ تَعَبَكُمْ لَيْسَ بَاطِلاً فِي الرَّبِّ."
+        </div>
+        <div class="verse-ref">📖 1 كورنثوس 15: 58</div>
+    </div>
+
+    <div class="entry-box">
+        <input type="text" id="nameInput" placeholder="🔍 ابحث أو أضف اسم الطفل..." oninput="filterNames(this.value)">
+        <div id="suggestions" style="position:absolute; background:white; width:70%; z-index:1000; display:none; border-radius:15px; box-shadow:0 10px 20px rgba(0,0,0,0.1);"></div>
+        
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div style="flex:1"><span class="label-text">المنطقة:</span><input type="text" id="areaInput"></div>
+            <div style="flex:1"><span class="label-text">الموبايل:</span><input type="tel" id="phoneInput"></div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div style="flex:1"><span class="label-text">الميلاد:</span><input type="date" id="dobInput"></div>
+            <div style="flex:1"><span class="label-text">تاريخ الحضور:</span><input type="date" id="dateInput"></div>
+        </div>
+        <textarea id="noteInput" placeholder="ملاحظات..." rows="1"></textarea>
+        
+        <div class="btn-group">
+            <button class="main-btn btn-green" onclick="saveRecord('حاضر')"><i class="fas fa-check-circle"></i> حضور</button>
+            <button class="main-btn btn-red" onclick="saveRecord('غائب')"><i class="fas fa-times-circle"></i> غياب</button>
+            <button class="main-btn btn-clear" onclick="clearInputs()"><i class="fas fa-broom"></i> مسح</button>
+        </div>
+    </div>
+
+    <div class="entry-box" style="background:#fcfcfc;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+            <div style="flex:1">من: <input type="date" id="dateFrom"></div>
+            <div style="flex:1">إلى: <input type="date" id="dateTo"></div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button style="flex:1; background:#54a0ff; color:white; border:none; padding:12px; border-radius:15px;" onclick="downloadExcel('full')">📎 إكسيل شامل</button>
+            <button style="flex:1; background:#ff9f43; color:white; border:none; padding:12px; border-radius:15px;" onclick="downloadExcel('visit')">🏃 كشف افتقاد</button>
+        </div>
+        <button style="width:100%; background:var(--purple); color:white; border:none; padding:12px; border-radius:15px; margin-top:10px;" onclick="deleteSelected()">🗑 مسح المختار من الجدول</button>
+    </div>
+
+    <!-- الجدول الرئيسي -->
+    <div style="overflow-x: auto;">
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll()"></th>
+                    <th>الاسم</th>
+                    <th>الحالة</th>
+                    <th>التاريخ</th>
+                    <th>واتس</th>
+                    <th>الخادم</th>
+                    <th>تعديل</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- عنوان جدول الافتقاد -->
+    <div class="visit-title">
+        <i class="fas fa-bell"></i> قائمة الأطفال المحتاجين افتقاد (غياب 7 أيام فأكثر)
+    </div>
+    
+    <!-- جدول الافتقاد المنفصل -->
+    <div style="overflow-x: auto;">
+        <table class="visit-table" id="visitTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>اسم الطفل</th>
+                    <th>آخر حضور</th>
+                    <th>منذ (يوم)</th>
+                    <th>المنطقة</th>
+                    <th>الموبايل</th>
+                    <th>واتس</th>
+                </tr>
+            </thead>
+            <tbody id="visitTableBody"></tbody>
+        </table>
+    </div>
+
+    <table class="stats-table">
+        <tr>
+            <td><small>الإجمالي</small><br><span id="sTotal">0</span></td>
+            <td><small>حضور</small><br><span id="sPresent" style="color:var(--green)">0</span></td>
+            <td><small>غياب</small><br><span id="sAbsent" style="color:var(--red)">0</span></td>
+        </tr>
+    </table>
+</div>
+
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:20000; align-items:center; justify-content:center;">
+    <div style="background:white; width:90%; max-width:450px; border-radius:35px; padding:25px; text-align:center;">
+        <h3 style="color:var(--primary);">✏️ تعديل بيانات الطفل</h3>
+        <input type="text" id="editNameModal" style="width:90%; padding:12px; margin:10px 0; border-radius:15px;" placeholder="الاسم">
+        <select id="editStatusModal" style="width:90%; padding:12px; margin:10px 0; border-radius:15px;">
+            <option value="حاضر">✅ حاضر</option>
+            <option value="غائب">❌ غائب</option>
+        </select>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="submitEditModal()" style="flex:1; background:var(--green); color:white; border:none; padding:12px; border-radius:20px;">💾 حفظ</button>
+            <button onclick="closeEditModal()" style="flex:1; background:var(--red); color:white; border:none; padding:12px; border-radius:20px;">✖ إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, updateDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyCDzA8WE8lr-YeBvGSEV9XNfD_3X3zLhGo", authDomain: "abanoub-attendance.firebaseapp.com", projectId: "abanoub-attendance", storageBucket: "abanoub-attendance.appspot.com", messagingSenderId: "519645783104", appId: "1:519645783104:web:d4409a6338b5550c65b161" };
+    const app = initializeApp(firebaseConfig); const db = getFirestore(app); const colRef = collection(db, "records");
+    
+    const users = { "mina": "111", "nancy": "222" };
+    let currentUser = JSON.parse(sessionStorage.getItem('loggedUser')), allNamesData = [], currentRecords = [], unsubscribe = null, idleTime = 0;
+
+    function getLocalToday() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const todayStr = getLocalToday();
+    
+    window.resetIdleTimer = () => { idleTime = 0; };
+    setInterval(() => { if (currentUser) { idleTime++; let rem = Math.max(0, 120 - idleTime); document.getElementById('idleTimer').innerText = `${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`; if (idleTime >= 120) logout(); } }, 1000);
+
+    window.handleLogin = () => { const u = document.getElementById('user').value.toLowerCase(), p = document.getElementById('pass').value; if(users[u] === p) { currentUser = { name: u }; sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); checkAuth(); } else alert("خطأ في البيانات!"); };
+    window.logout = () => { sessionStorage.removeItem('loggedUser'); location.reload(); };
+
+    function checkAuth() { 
+        if(currentUser) { 
+            document.getElementById('loginOverlay').style.display = 'none'; 
+            document.getElementById('mainApp').style.display = 'block'; 
+            document.getElementById('displayName').innerText = currentUser.name; 
+            document.getElementById('dateInput').value = todayStr;
+            document.getElementById('dateFrom').value = todayStr;
+            document.getElementById('dateTo').value = todayStr;
+            setupRealtime(); 
+            loadDatabase(); 
+        } 
+    }
+
+    async function loadDatabase() { const snap = await getDocs(query(colRef, orderBy("date", "desc"))); const unique = {}; snap.forEach(d => { if(!unique[d.data().name]) unique[d.data().name] = d.data(); }); allNamesData = Object.values(unique); }
+
+    window.clearInputs = () => { 
+        ['nameInput','areaInput','phoneInput','dobInput','noteInput'].forEach(id => document.getElementById(id).value = ""); 
+        document.getElementById('dateInput').value = todayStr;
+    };
+    
+    window.filterNames = (v) => { const box = document.getElementById('suggestions'); if(!v) { box.style.display = 'none'; return; } const matches = allNamesData.filter(c => c.name.includes(v)).slice(0, 8); box.innerHTML = matches.map(m => `<div style="padding:12px; border-bottom:1px solid #eee; cursor:pointer;" onclick="selectName('${m.name}')">${m.name}</div>`).join(''); box.style.display = matches.length ? 'block' : 'none'; };
+    
+    window.selectName = (n) => { const c = allNamesData.find(x => x.name === n); if(c) { document.getElementById('nameInput').value = c.name; document.getElementById('areaInput').value = c.area || ""; document.getElementById('phoneInput').value = c.phone || ""; document.getElementById('dobInput').value = c.dob || ""; } document.getElementById('suggestions').style.display = 'none'; };
+
+    function updateVisitTable(childrenNeedingVisit) {
+        const tbody = document.getElementById('visitTableBody');
+        if (!tbody) return;
+        
+        if (childrenNeedingVisit.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="no-visit">🎉 جميع الأطفال منتظمين في الحضور - لا يوجد أطفال محتاجين افتقاد حالياً 🎉</td></tr>`;
+            return;
+        }
+        
+        tbody.innerHTML = "";
+        childrenNeedingVisit.forEach((child, index) => {
+            tbody.innerHTML += `<tr>
+                <td>${index + 1}</td>
+                <td><b>${child.name}</b></td>
+                <td>${child.lastAttendance}</td>
+                <td style="color: var(--warning); font-weight: bold;">${child.daysAbsent} يوم</td>
+                <td>${child.area || '-'}</td>
+                <td>${child.phone || '-'}</td>
+                <td>${child.phone ? `<a href="https://wa.me/2${child.phone}" target="_blank" style="color:#25d366; font-size:20px;"><i class="fab fa-whatsapp"></i></a>` : '-'}</td>
+            </tr>`;
+        });
+    }
+
+    function setupRealtime() { 
+        if(unsubscribe) unsubscribe(); 
+        const f = document.getElementById('dateFrom').value, t = document.getElementById('dateTo').value; 
+        const q = query(colRef, where("date", ">=", f), where("date", "<=", t), orderBy("date", "desc")); 
+        unsubscribe = onSnapshot(q, (snap) => { 
+            const tbody = document.getElementById('tableBody'); 
+            tbody.innerHTML = ""; 
+            let p = 0, a = 0; 
+            const recordsArray = [];
+            snap.forEach(docSnap => { 
+                const i = docSnap.data(); 
+                i.id = docSnap.id; 
+                recordsArray.push(i);
+                if(i.status === 'حاضر') p++; else a++; 
+            });
+            currentRecords = recordsArray;
+            
+            // حساب آخر ظهور لكل طفل (لكل الأطفال في قاعدة البيانات كلها، مش الفترة بس)
+            const allRecordsQuery = query(colRef, orderBy("date", "desc"));
+            getDocs(allRecordsQuery).then((allSnap) => {
+                const childLastDateGlobal = {};
+                const childData = {};
+                
+                allSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const recDate = new Date(data.date);
+                    recDate.setHours(0, 0, 0, 0);
+                    if (!childLastDateGlobal[data.name] || recDate > childLastDateGlobal[data.name]) {
+                        childLastDateGlobal[data.name] = recDate;
+                        childData[data.name] = {
+                            area: data.area,
+                            phone: data.phone,
+                            name: data.name
+                        };
+                    }
+                });
+                
+                const todayDate = new Date();
+                todayDate.setHours(0, 0, 0, 0);
+                
+                const childrenNeedingVisit = [];
+                
+                for (const [name, lastDate] of Object.entries(childLastDateGlobal)) {
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                    if (diffDays >= 7) {
+                        childrenNeedingVisit.push({
+                            name: name,
+                            lastAttendance: lastDate.toISOString().split('T')[0],
+                            daysAbsent: diffDays,
+                            area: childData[name]?.area || '',
+                            phone: childData[name]?.phone || ''
+                        });
+                    }
+                }
+                
+                // ترتيب حسب الأيام الأكثر غياباً
+                childrenNeedingVisit.sort((a, b) => b.daysAbsent - a.daysAbsent);
+                updateVisitTable(childrenNeedingVisit);
+            });
+            
+            const childLastDate = {};
+            currentRecords.forEach(rec => {
+                const recDate = new Date(rec.date);
+                recDate.setHours(0, 0, 0, 0);
+                if (!childLastDate[rec.name] || recDate > childLastDate[rec.name]) {
+                    childLastDate[rec.name] = recDate;
+                }
+            });
+            
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            
+            currentRecords.forEach(i => {
+                const lastDate = childLastDate[i.name];
+                let isMissing = false;
+                if (lastDate) {
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                    isMissing = diffDays >= 7;
+                }
+                
+                let isBday = false; 
+                let bdayMsg = ''; 
+                if(i.dob) { 
+                    const today = new Date(); 
+                    const bday = new Date(i.dob); 
+                    bday.setFullYear(today.getFullYear()); 
+                    const diffDaysBday = Math.ceil((bday - today) / (1000 * 60 * 60 * 24)); 
+                    if(diffDaysBday >= 0 && diffDaysBday <= 30) { 
+                        isBday = true; 
+                        bdayMsg = `🎁 عيد ميلاده بعد ${diffDaysBday} يوم`; 
+                    } 
+                    if(diffDaysBday === 0) { 
+                        isBday = true; 
+                        bdayMsg = `🎂 عيد ميلاده اليوم!`; 
+                    } 
+                }
+                
+                tbody.innerHTML += `<tr id="row-${i.id}" class="${isMissing ? 'alert-row' : ''}">
+                    <td><input type="checkbox" class="row-check" value="${i.id}"></td>
+                    <td style="text-align:right"><b>${i.name}</b> ${isBday ? `<span class="bday-tag">${bdayMsg}</span>` : ''} ${isMissing ? '<span class="visit-tag">🏃 يحتاج افتقاد</span>' : ''}</td>
+                    <td style="color:${i.status === 'حاضر' ? 'var(--green)' : 'var(--red)'}">${i.status}</td>
+                    <td>${i.date.split('-').reverse().slice(0,2).join('/')}</td>
+                    <td>${i.phone ? `<a href="https://wa.me/2${i.phone}" target="_blank" style="color:#25d366; font-size:18px;"><i class="fab fa-whatsapp"></i></a>` : '-'}</td>
+                    <td>${i.addedBy || '-'}</td>
+                    <td><button onclick="showEditPanel('${i.id}', '${i.name}', '${i.status}')" style="border:none; background:none; cursor:pointer;"><i class="fas fa-edit"></i></button></td>
+                </tr>`;
+            });
+            
+            document.getElementById('sTotal').innerText = currentRecords.length; 
+            document.getElementById('sPresent').innerText = p; 
+            document.getElementById('sAbsent').innerText = a; 
+        }); 
+    }
+
+    window.saveRecord = async (s) => { 
+        const name = document.getElementById('nameInput').value.trim(); 
+        let date = document.getElementById('dateInput').value;
+        if (!date) date = todayStr;
+        if (!name) return alert("أدخل اسم الطفل");
+        const dupCheck = await getDocs(query(colRef, where("name", "==", name), where("date", "==", date)));
+        if(!dupCheck.empty) return alert("مكرر! الطفل متسجل اليوم بالفعل.");
+        await addDoc(colRef, { 
+            name, date, status: s, 
+            area: document.getElementById('areaInput').value, 
+            phone: document.getElementById('phoneInput').value, 
+            dob: document.getElementById('dobInput').value, 
+            note: document.getElementById('noteInput').value, 
+            addedBy: currentUser.name, 
+            ts: new Date() 
+        });
+        clearInputs(); 
+        loadDatabase(); 
+    };
+
+    window.downloadExcel = (mode) => { 
+        const p = document.getElementById('sPresent').innerText, a = document.getElementById('sAbsent').innerText, t = document.getElementById('sTotal').innerText; 
+        const summary = [["إحصائيات الكشف"], ["الإجمالي", t], ["حضور", p], ["غياب", a], [], ["الاسم", "الحالة", "التاريخ", "المنطقة", "الموبايل", "الخادم", "ملاحظات"]]; 
+        const rows = currentRecords.filter(r => mode === 'full' || r.status === 'غائب').map(r => [r.name, r.status, r.date, r.area || '', r.phone || '', r.addedBy || '', r.note || '']); 
+        const ws = XLSX.utils.aoa_to_sheet(summary.concat(rows)); 
+        const wb = XLSX.utils.book_new(); 
+        XLSX.utils.book_append_sheet(wb, ws, "AbanoubReport"); 
+        XLSX.writeFile(wb, `Abanoub_${mode}_${getLocalToday()}.xlsx`); 
+    };
+
+    let currentEditId = null;
+    window.showEditPanel = (id, oldName, oldStatus) => { currentEditId = id; document.getElementById('editNameModal').value = oldName; document.getElementById('editStatusModal').value = oldStatus; document.getElementById('editModal').style.display = 'flex'; };
+    window.submitEditModal = async () => { const newName = document.getElementById('editNameModal').value; const newStatus = document.getElementById('editStatusModal').value; await updateDoc(doc(db, "records", currentEditId), { name: newName, status: newStatus }); closeEditModal(); setupRealtime(); loadDatabase(); };
+    window.closeEditModal = () => { document.getElementById('editModal').style.display = 'none'; currentEditId = null; };
+    
+    window.deleteSelected = async () => { const sel = Array.from(document.querySelectorAll('.row-check:checked')).map(c => c.value); if(sel.length && confirm(`حذف ${sel.length} سجل؟`)) { for(let id of sel) await deleteDoc(doc(db, "records", id)); } };
+    window.toggleSelectAll = () => { const m = document.getElementById('selectAll').checked; document.querySelectorAll('.row-check').forEach(c => c.checked = m); };
+
+    ['dateFrom','dateTo'].forEach(id => document.getElementById(id).onchange = setupRealtime);
+    checkAuth();
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
