@@ -309,7 +309,7 @@
     const todayStr = getLocalToday();
     
     window.resetIdleTimer = () => { idleTime = 0; };
-    setInterval(() => { if (currentUser) { idleTime++; let rem = Math.max(0, 59 - idleTime); document.getElementById('idleTimer').innerText = `${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`; if (idleTime >= 120) logout(); } }, 1000);
+    setInterval(() => { if (currentUser) { idleTime++; let rem = Math.max(0, 59 - idleTime); document.getElementById('idleTimer').innerText = `${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`; if (idleTime >= 59) logout(); } }, 1000);
 
     window.handleLogin = () => { const u = document.getElementById('user').value.toLowerCase(), p = document.getElementById('pass').value; if(users[u] === p) { currentUser = { name: u }; sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); checkAuth(); } else alert("خطأ في البيانات!"); };
     window.logout = () => { sessionStorage.removeItem('loggedUser'); location.reload(); };
