@@ -290,8 +290,15 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
     import { getFirestore, collection, addDoc, updateDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
-
-    const firebaseConfig = { apiKey: "AIzaSyCDzA8WE8lr-YeBvGSEV9XNfD_3X3zLhGo", authDomain: "abanoub-attendance.firebaseapp.com", projectId: "abanoub-attendance", storageBucket: "abanoub-attendance.appspot.com", messagingSenderId: "519645783104", appId: "1:519645783104:web:d4409a6338b5550c65b161" };
+    const firebaseConfig = {
+  apiKey: "AIzaSyCDzA8WE8lr-YeBvGSEDDBPN5EKpmFiF_w",
+  authDomain: "abanoub-attendance.firebaseapp.com",
+  projectId: "abanoub-attendance",
+  storageBucket: "abanoub-attendance.firebasestorage.app",
+  messagingSenderId: "519645783104",
+  appId: "1:519645783104:web:d4409ae01039e8f932aba5",
+  measurementId: "G-65YH59QC4Q"
+};
     const app = initializeApp(firebaseConfig); const db = getFirestore(app); const colRef = collection(db, "records");
     
     const users = { "mina": "111", "nancy": "222" , "guest1": "333" , "guest2": "444" };
