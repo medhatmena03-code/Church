@@ -311,7 +311,17 @@
     window.resetIdleTimer = () => { idleTime = 0; };
     setInterval(() => { if (currentUser) { idleTime++; let rem = Math.max(0, 59 - idleTime); document.getElementById('idleTimer').innerText = `${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`; if (idleTime >= 59) logout(); } }, 1000);
 
-    window.handleLogin = () => { const u = document.getElementById('user').value.toLowerCase(), p = document.getElementById('pass').value; if(users[u] === p) { currentUser = { name: u }; sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); checkAuth(); } else alert("خطأ في البيانات!"); };
+    window.handleLogin = () => { 
+    const u = document.getElementById('user').value.toLowerCase(); 
+    const p = document.getElementById('pass').value; 
+    if(users[u] === p) { 
+        currentUser = { name: u }; 
+        sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
+        checkAuth(); 
+    } else { 
+        document.getElementById('errorModal').style.display = 'flex';
+    } 
+};
     window.logout = () => { sessionStorage.removeItem('loggedUser'); location.reload(); };
 
     function checkAuth() { 
@@ -513,12 +523,24 @@
     window.deleteSelected = async () => { const sel = Array.from(document.querySelectorAll('.row-check:checked')).map(c => c.value); if(sel.length && confirm(`حذف ${sel.length} سجل؟`)) { for(let id of sel) await deleteDoc(doc(db, "records", id)); } };
     window.toggleSelectAll = () => { const m = document.getElementById('selectAll').checked; document.querySelectorAll('.row-check').forEach(c => c.checked = m); };
 
-    ['dateFrom','dateTo'].forEach(id => document.getElementById(id).onchange = setupRealtime);
+        ['dateFrom','dateTo'].forEach(id => document.getElementById(id).onchange = setupRealtime);
     checkAuth();
+
+    // ========== مودال الخطأ الجديد ==========
+    window.closeErrorModal = () => {
+        document.getElementById('errorModal').style.display = 'none';
+    };
 </script>
+
+<!-- مودال الخطأ (نافذة منبثقة) -->
+<div id="errorModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:30000; align-items:center; justify-content:center;">
+    <div style="background:white; width:85%; max-width:350px; border-radius:30px; padding:25px; text-align:center; border-top: 8px solid #ff6b6b;">
+        <i class="fas fa-times-circle" style="font-size:50px; color:#ff6b6b; margin-bottom:15px;"></i>
+        <h3 style="color:#1e272e; margin-bottom:10px;">فشل تسجيل الدخول</h3>
+        <p style="color:#555; margin-bottom:20px;">❌ اسم المستخدم أو كلمة السر غير صحيحة.<br>✝️ برجاء المحاولة مرة أخرى.</p>
+        <button onclick="closeErrorModal()" style="background:#ff6b6b; color:white; border:none; padding:10px 20px; border-radius:25px; font-weight:bold;">حسناً</button>
+    </div>
+</div>
+
 </body>
-</html>
-    
-  </body>
-  
 </html>
