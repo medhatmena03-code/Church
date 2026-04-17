@@ -294,7 +294,7 @@
     const firebaseConfig = { apiKey: "AIzaSyCDzA8WE8lr-YeBvGSEV9XNfD_3X3zLhGo", authDomain: "abanoub-attendance.firebaseapp.com", projectId: "abanoub-attendance", storageBucket: "abanoub-attendance.appspot.com", messagingSenderId: "519645783104", appId: "1:519645783104:web:d4409a6338b5550c65b161" };
     const app = initializeApp(firebaseConfig); const db = getFirestore(app); const colRef = collection(db, "records");
     
-    const users = { "mina": "111", "nancy": "222" , "guest": "333" };
+    const users = { "mina": "111", "nancy": "222" , "guest1": "333" "guest2": "444" };
     let currentUser = JSON.parse(sessionStorage.getItem('loggedUser')), allNamesData = [], currentRecords = [], unsubscribe = null, idleTime = 0;
 
     function getLocalToday() {
