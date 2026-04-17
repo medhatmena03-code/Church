@@ -393,49 +393,73 @@
                 if(i.status === 'حاضر') p++; else a++; 
             });
             currentRecords = recordsArray;
-            
-            // حساب آخر ظهور لكل طفل (لكل الأطفال في قاعدة البيانات كلها، مش الفترة بس)
-            const allRecordsQuery = query(colRef, orderBy("date", "desc"));
-            getDocs(allRecordsQuery).then((allSnap) => {
-                const childLastDateGlobal = {};
-                const childData = {};
-                
-                allSnap.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const recDate = new Date(data.date);
-                    recDate.setHours(0, 0, 0, 0);
-                    if (!childLastDateGlobal[data.name] || recDate > childLastDateGlobal[data.name]) {
-                        childLastDateGlobal[data.name] = recDate;
-                        childData[data.name] = {
-                            area: data.area,
-                            phone: data.phone,
-                            name: data.name
-                        };
-                    }
-                });
-                
-                const todayDate = new Date();
-                todayDate.setHours(0, 0, 0, 0);
-                
-                const childrenNeedingVisit = [];
-                
-                for (const [name, lastDate] of Object.entries(childLastDateGlobal)) {
-                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 7) {
-                        childrenNeedingVisit.push({
-                            name: name,
-                            lastAttendance: lastDate.toISOString().split('T')[0],
-                            daysAbsent: diffDays,
-                            area: childData[name]?.area || '',
-                            phone: childData[name]?.phone || ''
-                        });
-                    }
-                }
-                
-                // ترتيب حسب الأيام الأكثر غياباً
-                childrenNeedingVisit.sort((a, b) => b.daysAbsent - a.daysAbsent);
-                updateVisitTable(childrenNeedingVisit);
+            // حساب آخر حضور لكل طفل (الطفل يفضل في جدول الافتقاد لحد ما يحضر)
+const allRecordsQuery = query(colRef, orderBy("date", "desc"));
+getDocs(allRecordsQuery).then((allSnap) => {
+    const childLastAttendance = {}; // آخر حضور فقط
+    const childData = {};
+    
+    allSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        const recDate = new Date(data.date);
+        recDate.setHours(0, 0, 0, 0);
+        
+        // بنحفظ بيانات الطفل عموماً
+        if (!childData[data.name]) {
+            childData[data.name] = {
+                area: data.area,
+                phone: data.phone,
+                name: data.name
+            };
+        }
+        
+        // بنحفظ آخر حضور فقط (status === 'حاضر')
+        if (data.status === 'حاضر') {
+            if (!childLastAttendance[data.name] || recDate > childLastAttendance[data.name]) {
+                childLastAttendance[data.name] = recDate;
+            }
+        }
+    });
+    
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    
+    const childrenNeedingVisit = [];
+    
+    // بنشوف الأطفال اللي لسه محضرش
+    for (const [name, lastAttDate] of Object.entries(childLastAttendance)) {
+        const diffDays = Math.floor((todayDate - lastAttDate) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 7) {
+            childrenNeedingVisit.push({
+                name: name,
+                lastAttendance: lastAttDate.toISOString().split('T')[0],
+                daysAbsent: diffDays,
+                area: childData[name]?.area || '',
+                phone: childData[name]?.phone || ''
             });
+        }
+    }
+    
+    // الأطفال اللي معندهمش أي حضور نهائي (جدد)
+    for (const [name, data] of Object.entries(childData)) {
+        if (!childLastAttendance[name]) {
+            childrenNeedingVisit.push({
+                name: name,
+                lastAttendance: 'لم يحضر بعد',
+                daysAbsent: 'جديد',
+                area: data?.area || '',
+                phone: data?.phone || ''
+            });
+        }
+    }
+    
+    childrenNeedingVisit.sort((a, b) => {
+        if (a.daysAbsent === 'جديد') return -1;
+        if (b.daysAbsent === 'جديد') return 1;
+        return b.daysAbsent - a.daysAbsent;
+    });
+    updateVisitTable(childrenNeedingVisit);
+});
             
             const childLastDate = {};
             currentRecords.forEach(rec => {
